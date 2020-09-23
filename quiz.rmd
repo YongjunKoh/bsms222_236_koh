@@ -1,0 +1,47 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+d <- read.delim("table.chr3_22_X.txt.gz")
+```
+
+# Q1. gene별 transcript의 개수.
+```{r}
+d %>% filter(type == "transcript") %>% 
+  group_by(gene_id, gene_name) %>% 
+  count() -> d1
+d1
+```
+
+# Q2. 가장 많은 transcript를 가지는 gene.
+```{r}
+d1 %>% as.data.frame() %>% top_n(1, n)
+```
+또는
+```{r}
+d1 %>% arrange(desc(n)) %>% head()
+```
+
+# Q3. gene별 exon의 개수.
+## 다른 transcript의 같은 exon_id를 다른 exon이라고 가정할 때.
+```{r}
+d %>% filter(type == "exon") %>% 
+  group_by(gene_id, gene_name) %>% 
+  count() %>% arrange(desc(n)) %>% head()
+```
+## 다른 transcript의 같은 exon_id를 같은 exon이라고 가정할 때.
+```{r}
+d %>% filter(type == "exon") %>% 
+  group_by(gene_id, gene_name, exon_id) %>% 
+  count() %>% 
+  group_by(gene_id, gene_name) %>% 
+  count() %>% arrange(desc(n)) %>% head()
+```
+
+## transcript별 exon의 개수.
+```{r}
+d %>% filter(type == "exon") %>% 
+  group_by(transcript_id, transcript_name) %>% 
+  count() %>% arrange(desc(n)) %>% head()
+```
